@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0F1E33">
+<title>Kuis Tolak Peluru</title>
+<style>
+  :root{
+    --navy:#0F1E33;
+    --navy-2:#16294a;
+    --orange:#F2622E;
+    --orange-dark:#C94A1E;
+    --chalk:#F7F4EE;
+    --red:#C81E3A;
+    --green:#2FA84F;
+    --grey:#5B6472;
+    --line:rgba(247,244,238,0.14);
+    --radius:14px;
+    font-size:16px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(1100px 550px at 85% -10%, #1c3660 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, #2a1a0f 0%, transparent 55%),
+      var(--navy);
+    color:var(--chalk);
+    font-family:'Work Sans', Arial, sans-serif;
+    padding:calc(28px + env(safe-area-inset-top, 0px)) 16px calc(60px + env(safe-area-inset-bottom, 0px));
+    overscroll-behavior-y:contain;
+  }
+  button, .option, input, select, a{
+    touch-action:manipulation;
+  }
+  @font-face{
+    font-family:'Anton';
+    src:local('Anton');
+  }
+  h1,h2,h3,.display{
+    font-family:'Anton', 'Arial Narrow', sans-serif;
+    font-weight:400;
+    letter-spacing:0.5px;
+    line-height:1.05;
+  }
+
+  .wrap{max-width:760px;margin:0 auto;}
+
+  /* ---------- HEADER / SCOREBOARD ---------- */
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    margin-bottom:22px;
+  }
+  .brand{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  .brand .ring{
+    width:14px;height:14px;border-radius:50%;
+    background:var(--orange);
+    box-shadow:0 0 0 3px rgba(242,98,46,0.25);
+    flex-shrink:0;
+  }
+  .brand h1{
+    font-size:clamp(26px,6vw,38px);
+    margin:0;
+    text-transform:uppercase;
+  }
+  .brand h1 span{color:var(--orange);}
+  .subtitle{
+    margin:2px 0 0;
+    font-size:13px;
+    color:#AEB8C8;
+    letter-spacing:0.3px;
+  }
+
+  /* ---------- VIDEO PANEL ---------- */
+  .video-panel{
+    background:var(--navy-2);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:10px;
+    margin-bottom:20px;
+    position:relative;
+  }
+  .video-tag{
+    position:absolute;
+    top:22px; left:22px;
+    background:var(--red);
+    color:var(--chalk);
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:1px;
+    padding:4px 10px;
+    border-radius:4px;
+    z-index:2;
+    text-transform:uppercase;
+    box-shadow:0 2px 8px rgba(0,0,0,0.3);
+  }
+  video{
+    width:100%;
+    display:block;
+    border-radius:8px;
+    background:#000;
+  }
+  .video-caption{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 6px 2px;
+    font-size:13px;
+    color:#9FAAC0;
+  }
+
+  /* ---------- CARD (generic) ---------- */
+  .card{
+    background:var(--navy-2);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:26px 22px;
+  }
+
+  /* ---------- START SCREEN ---------- */
+  #screen-start .card{text-align:center;padding:34px 22px;}
+  #screen-start h2{font-size:clamp(22px,5vw,30px);margin:6px 0 10px;text-transform:uppercase;}
+  #screen-start p{color:#C6CEDC;font-size:15px;line-height:1.6;margin:0 auto 22px;max-width:480px;}
+  .stat-row{
+    display:flex;
+    justify-content:center;
+    gap:28px;
+    margin-bottom:26px;
+    flex-wrap:wrap;
+  }
+  .stat{text-align:center;}
+  .stat .num{font-family:'Anton',sans-serif;font-size:30px;color:var(--orange);}
+  .stat .lbl{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#8B96A8;}
+
+  button{
+    font-family:'Work Sans',sans-serif;
+    cursor:pointer;
+    border:none;
+  }
+  .btn-primary{
+    background:var(--orange);
+    color:#1a0e05;
+    font-weight:700;
+    font-size:16px;
+    padding:15px 36px;
+    border-radius:50px;
+    letter-spacing:0.3px;
+    box-shadow:0 8px 22px rgba(242,98,46,0.35);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(242,98,46,0.45);}
+  .btn-primary:active{transform:translateY(0);}
+  .btn-ghost{
+    background:transparent;
+    color:var(--chalk);
+    border:1px solid var(--line);
+    font-size:14px;
+    padding:12px 26px;
+    border-radius:50px;
+  }
+
+  #screen-start{display:none;}
+
+  /* ---------- QUIZ SCREEN ---------- */
+  #screen-quiz{display:none;}
+
+  .progress-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:16px;
+  }
+  .progress-track{
+    flex:1;
+    height:8px;
+    border-radius:4px;
+    background:rgba(255,255,255,0.08);
+    overflow:hidden;
+    position:relative;
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg, var(--orange), #ffb27a);
+    border-radius:4px;
+    transition:width .35s ease;
+  }
+  .progress-text{
+    font-size:13px;
+    color:#9FAAC0;
+    white-space:nowrap;
+    font-variant-numeric:tabular-nums;
+  }
+  .score-chip{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:13px;
+    color:#9FAAC0;
+    margin-bottom:20px;
+  }
+  .score-chip b{color:var(--green);font-size:16px;}
+
+  .q-category{
+    display:inline-block;
+    background:rgba(242,98,46,0.15);
+    color:var(--orange);
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    padding:5px 12px;
+    border-radius:20px;
+    margin-bottom:14px;
+  }
+  .q-text{
+    font-size:clamp(19px,4.2vw,23px);
+    line-height:1.4;
+    margin:0 0 22px;
+    font-weight:600;
+    font-family:'Work Sans',sans-serif;
+  }
+
+  .options{display:flex;flex-direction:column;gap:10px;}
+  .option{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background:rgba(255,255,255,0.03);
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    padding:14px 16px;
+    font-size:15px;
+    text-align:left;
+    color:var(--chalk);
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .option:hover{border-color:rgba(242,98,46,0.5);}
+  .option .marker{
+    flex-shrink:0;
+    width:26px;height:26px;
+    border-radius:50%;
+    border:1.5px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:700;
+    color:#9FAAC0;
+  }
+  .option.correct{
+    border-color:var(--green);
+    background:rgba(47,168,79,0.14);
+  }
+  .option.correct .marker{background:var(--green);border-color:var(--green);color:#fff;}
+  .option.wrong{
+    border-color:var(--red);
+    background:rgba(200,30,58,0.14);
+  }
+  .option.wrong .marker{background:var(--red);border-color:var(--red);color:#fff;}
+  .option:disabled{cursor:default;}
+  .option[disabled]:not(.correct):not(.wrong){opacity:0.45;}
+
+  .explain{
+    margin-top:16px;
+    padding:14px 16px;
+    border-radius:10px;
+    background:rgba(255,255,255,0.04);
+    border-left:3px solid var(--orange);
+    font-size:14px;
+    line-height:1.55;
+    color:#D6DCE6;
+    display:none;
+  }
+  .explain b{color:var(--chalk);}
+
+  .nav-row{
+    display:flex;
+    justify-content:flex-end;
+    margin-top:22px;
+  }
+  #btn-next{display:none;}
+
+  /* ---------- RESULT SCREEN ---------- */
+  #screen-result{display:none;text-align:center;}
+  .ring-score{
+    width:168px;height:168px;
+    margin:6px auto 18px;
+    position:relative;
+  }
+  .ring-score svg{transform:rotate(-90deg);}
+  .ring-score .center{
+    position:absolute;inset:0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+  }
+  .ring-score .pct{font-family:'Anton',sans-serif;font-size:38px;color:var(--orange);}
+  .ring-score .frac{font-size:12px;color:#9FAAC0;letter-spacing:0.5px;}
+  #result-title{font-size:clamp(22px,5vw,28px);text-transform:uppercase;margin:0 0 6px;}
+  #result-msg{color:#C6CEDC;font-size:14px;margin:0 0 26px;}
+
+  .review-list{text-align:left;margin-top:26px;display:flex;flex-direction:column;gap:10px;}
+  .review-item{
+    background:rgba(255,255,255,0.03);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:14px 16px;
+    font-size:14px;
+    line-height:1.5;
+  }
+  .review-item .rq{color:var(--chalk);font-weight:600;margin-bottom:6px;}
+  .review-item .ra{color:#9FAAC0;}
+  .review-item .ra.you-wrong{color:var(--red);}
+  .review-item .ra.correct{color:var(--green);}
+  .review-toggle{
+    margin-top:22px;
+    background:none;
+    color:var(--orange);
+    font-size:13px;
+    font-weight:600;
+    text-decoration:underline;
+    padding:6px;
+  }
+  #review-wrap{display:none;}
+
+  .result-actions{
+    display:flex;
+    gap:12px;
+    justify-content:center;
+    margin-top:26px;
+    flex-wrap:wrap;
+  }
+
+  footer{
+    text-align:center;
+    color:#5A6478;
+    font-size:12px;
+    margin-top:30px;
+  }
+
+  @media (max-width:480px){
+    .card{padding:20px 16px;}
+    .stat-row{gap:20px;}
+  }
+
+  /* ---------- LOGIN SCREEN (was form-only, now robot) ---------- */
+  .student-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:rgba(255,255,255,0.04);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:6px 14px;
+    font-size:12px;
+    color:#C6CEDC;
+    margin-bottom:14px;
+  }
+  .student-chip b{color:var(--chalk);}
+  #submit-status{
+    font-size:13px;
+    color:#9FAAC0;
+    margin:14px 0 0;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+  #submit-status.sending::before{
+    content:"";
+    width:10px;height:10px;
+    border-radius:50%;
+    background:var(--orange);
+    animation:pulse-dot 1s infinite ease-in-out;
+    flex-shrink:0;
+  }
+  #submit-status.ok{color:var(--green);}
+  #submit-status.ok::before{content:"✓ ";}
+  #submit-status.error{color:var(--red);}
+  #submit-status.error::before{content:"⚠ ";}
+  @keyframes pulse-dot{
+    0%,100%{opacity:0.35;}
+    50%{opacity:1;}
+  }
+
+  /* ---------- ROBOT LOGIN ---------- */
+  #screen-login{
+    background:transparent;
+    border:none;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    user-select:none;
+  }
+
+  .r-bubble{
+    position:relative;
+    background:var(--navy-2);
+    border:2px solid var(--orange);
+    border-radius:14px;
+    padding:9px 16px;
+    font-size:13px;
+    font-weight:700;
+    color:var(--chalk);
+    white-space:nowrap;
+    max-width:88vw;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    margin-bottom:14px;
+    box-shadow:3px 3px 0 rgba(0,0,0,0.35);
+  }
+  .r-bubble::after{
+    content:"";
+    position:absolute;
+    left:50%;
+    bottom:-10px;
+    transform:translateX(-50%);
+    width:0;height:0;
+    border-left:8px solid transparent;
+    border-right:8px solid transparent;
+    border-top:9px solid var(--orange);
+  }
+  .r-bubble::before{
+    content:"";
+    position:absolute;
+    left:50%;
+    bottom:-7px;
+    transform:translateX(-50%);
+    width:0;height:0;
+    border-left:6px solid transparent;
+    border-right:6px solid transparent;
+    border-top:7px solid var(--navy-2);
+    z-index:1;
+  }
+
+  .r-robot{
+    position:relative;
+    width:96px;
+    height:88px;
+    margin-bottom:-18px;
+    z-index:2;
+  }
+  .r-ear{
+    position:absolute;
+    top:22px;
+    width:14px;
+    height:30px;
+    background:var(--navy-2);
+    border:2px solid var(--line);
+    border-radius:6px;
+  }
+  .r-ear.left{ left:-8px; }
+  .r-ear.right{ right:-8px; }
+
+  .r-head-shell{
+    position:absolute;
+    inset:0;
+    background:var(--navy-2);
+    border:2px solid var(--line);
+    border-radius:20px;
+    box-shadow:3px 3px 0 rgba(0,0,0,0.35);
+  }
+
+  .r-face{
+    position:absolute;
+    top:10px; left:10px; right:10px; bottom:10px;
+    background:#080c14;
+    border-radius:12px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    overflow:hidden;
+  }
+
+  .r-eyes{ display:flex; gap:14px; }
+  .r-eye{
+    width:17px; height:17px;
+    background:#fff;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 0 4px rgba(255,255,255,.6);
+    animation:r-blink 4.6s infinite;
+  }
+  .r-eye.right{ animation-delay:.05s; }
+  .r-pupil{
+    width:8px; height:8px;
+    background:var(--orange);
+    border-radius:50%;
+    transition:transform .06s linear;
+  }
+
+  @keyframes r-blink{
+    0%, 92%, 100% { transform:scaleY(1); }
+    95% { transform:scaleY(0.12); }
+  }
+
+  .r-mouth{
+    width:22px; height:3px;
+    background:var(--green);
+    border-radius:2px;
+    transition:height .12s ease, border-radius .12s ease;
+  }
+  .r-mouth.talk{ animation:r-talk .42s steps(2, jump-end) infinite; }
+  @keyframes r-talk{
+    0%   { height:3px;  border-radius:2px; }
+    50%  { height:9px;  border-radius:5px; }
+    100% { height:3px;  border-radius:2px; }
+  }
+
+  .r-card-wrap{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    z-index:1;
+    width:100%;
+  }
+
+  .r-card{
+    position:relative;
+    width:340px;
+    max-width:88vw;
+    background:var(--navy-2);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:26px 22px 22px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.35);
+    text-align:center;
+    z-index:1;
+  }
+  .r-card h2{font-size:clamp(20px,5vw,26px);margin:0 0 8px;text-transform:uppercase;}
+  .r-card p{color:#C6CEDC;font-size:13px;line-height:1.6;margin:0 auto 20px;max-width:400px;}
+
+  .r-hand{
+    position:absolute;
+    top:48px;
+    width:20px;
+    height:20px;
+    background:var(--navy-2);
+    border:2px solid var(--line);
+    border-radius:4px;
+    z-index:2;
+  }
+  .r-hand.left{ left:-11px; }
+  .r-hand.right{ right:-11px; }
+
+  .r-feet-wrap{
+    width:66px;
+    height:20px;
+    overflow:visible;
+    margin-top:-6px;
+    z-index:0;
+  }
+  .r-feet{
+    display:flex;
+    justify-content:space-between;
+    width:66px;
+  }
+  .r-feet span{
+    width:20px; height:20px;
+    background:var(--navy-2);
+    border:2px solid var(--line);
+    border-radius:4px;
+  }
+
+  .r-field-label{
+    display:block;
+    text-align:left;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.5px;
+    text-transform:uppercase;
+    color:#9FAAC0;
+    margin-bottom:6px;
+  }
+  .r-field{
+    display:flex;
+    align-items:center;
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    padding:0 12px;
+    margin-bottom:16px;
+    background:rgba(255,255,255,0.04);
+  }
+  .r-field input,
+  .r-field select{
+    border:none;
+    outline:none;
+    flex:1;
+    width:100%;
+    font-size:16px;
+    padding:14px 4px;
+    font-family:'Work Sans',sans-serif;
+    background:transparent;
+    color:var(--chalk);
+  }
+  .r-field select{cursor:pointer;}
+  .r-field select option{background:var(--navy-2);color:var(--chalk);}
+  .r-field:focus-within{border-color:var(--orange);}
+
+  #login-error{
+    color:var(--red);
+    font-size:13px;
+    margin:-6px auto 16px;
+    max-width:400px;
+    text-align:left;
+    display:none;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <span class="ring"></span>
+      <div>
+        <h1>Tolak <span>Peluru</span></h1>
+        <p class="subtitle">Materi &amp; Kuis Atletik &middot; PJOK</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="video-panel">
+    <span class="video-tag">Materi</span>
+    <video id="materi-video" controls preload="metadata" playsinline webkit-playsinline>
+      <source src="video-materi-tolak-peluru.mp4" type="video/mp4">
+      Browser Anda tidak mendukung pemutaran video.
+    </video>
+    <div class="video-caption">
+      <span>Tonton dulu materinya, lalu kerjakan kuisnya di bawah.</span>
+      <span id="video-duration"></span>
+    </div>
+  </div>
+
+  <!-- LOGIN SCREEN (ROBOT) -->
+  <div id="screen-login">
+    <div class="r-bubble" id="r-bubble">Halo! Siapa namamu? 👋</div>
+
+    <div class="r-robot">
+      <div class="r-ear left"></div>
+      <div class="r-ear right"></div>
+      <div class="r-head-shell">
+        <div class="r-face" id="r-face">
+          <div class="r-eyes">
+            <div class="r-eye"><div class="r-pupil" id="r-pupilL"></div></div>
+            <div class="r-eye right"><div class="r-pupil" id="r-pupilR"></div></div>
+          </div>
+          <div class="r-mouth" id="r-mouth"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="r-card-wrap">
+      <div class="r-hand left"></div>
+      <div class="r-hand right"></div>
+
+      <form class="r-card" id="loginForm" onsubmit="event.preventDefault(); loginStudent();">
+        <h2>Login Siswa</h2>
+        <p>Isi nama dan kelas kamu terlebih dahulu sebelum menonton materi dan mengerjakan kuis. Hasil kuis akan otomatis tersimpan ke database.</p>
+
+        <span class="r-field-label">Nama Lengkap</span>
+        <div class="r-field">
+          <input type="text" id="input-nama" placeholder="Contoh: Andi Saputra" autocomplete="off">
+        </div>
+
+        <span class="r-field-label">Kelas</span>
+        <div class="r-field">
+          <select id="input-kelas">
+            <option value="" disabled selected>Pilih kelas</option>
+            <option>X AT 1</option>
+            <option>X AT 2</option>
+            <option>X AKL 1</option>
+            <option>X AKL 2</option>
+          </select>
+        </div>
+
+        <div id="login-error">Nama dan kelas wajib diisi.</div>
+        <button class="btn-primary" type="submit">Masuk</button>
+      </form>
+
+      <div class="r-feet-wrap">
+        <div class="r-feet"><span></span><span></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- START SCREEN -->
+  <div id="screen-start" class="card">
+    <div class="student-chip">👤 <b id="student-display">-</b></div>
+    <h2>Uji Pemahamanmu</h2>
+    <p>Kuis ini berisi soal seputar sejarah, teknik (gaya Ortodoks, O'Brien, Spin), sarana &amp; prasarana, hingga peraturan pertandingan tolak peluru — sesuai video materi di atas.</p>
+    <div class="stat-row">
+      <div class="stat"><div class="num" id="stat-total">20</div><div class="lbl">Soal</div></div>
+      <div class="stat"><div class="num">PG</div><div class="lbl">Pilihan Ganda</div></div>
+      <div class="stat"><div class="num">&infin;</div><div class="lbl">Percobaan</div></div>
+    </div>
+    <button class="btn-primary" onclick="startQuiz()">Mulai Kuis</button>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="screen-quiz" class="card">
+    <div class="progress-row">
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-text" id="progress-text">1 / 20</div>
+    </div>
+    <div class="score-chip">Skor sementara: <b id="live-score">0</b></div>
+
+    <span class="q-category" id="q-category">Sejarah</span>
+    <p class="q-text" id="q-text">Pertanyaan</p>
+    <div class="options" id="q-options"></div>
+
+    <div class="explain" id="q-explain"></div>
+
+    <div class="nav-row">
+      <button class="btn-primary" id="btn-next" onclick="nextQuestion()">Lanjut &rarr;</button>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="screen-result" class="card">
+    <div class="ring-score">
+      <svg width="168" height="168" viewBox="0 0 168 168">
+        <circle cx="84" cy="84" r="74" stroke="rgba(255,255,255,0.08)" stroke-width="14" fill="none"/>
+        <circle id="ring-fill" cx="84" cy="84" r="74" stroke="#F2622E" stroke-width="14" fill="none"
+          stroke-linecap="round" stroke-dasharray="465" stroke-dashoffset="465"/>
+      </svg>
+      <div class="center">
+        <div class="pct" id="result-pct">0%</div>
+        <div class="frac" id="result-frac">0 / 20 BENAR</div>
+      </div>
+    </div>
+    <h2 id="result-title">Hasil Kuis</h2>
+    <p id="result-msg">Terus berlatih ya!</p>
+    <div id="submit-status">Mengirim nilai...</div>
+
+    <div class="result-actions">
+      <button class="btn-primary" onclick="restartQuiz()">Ulangi Kuis</button>
+      <button class="btn-ghost" onclick="toggleReview()">Lihat Pembahasan</button>
+    </div>
+
+    <div id="review-wrap">
+      <div class="review-list" id="review-list"></div>
+    </div>
+  </div>
+
+  <footer>Aplikasi Kuis Tolak Peluru &middot; dibuat dari materi video pembelajaran</footer>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    cat:"Sejarah",
+    q:"Olahraga menolak beban berat sudah ada sejak zaman apa sebagai bagian latihan fisik tentara?",
+    options:["Yunani Kuno dan Yunani Klasik","Romawi Kuno","Mesir Kuno","Abad Pertengahan Eropa"],
+    correct:0,
+    explain:"Olahraga menolak beban berat sudah ada sejak zaman Yunani Kuno dan Yunani Klasik sebagai bagian dari latihan fisik tentara."
+  },
+  {
+    cat:"Sejarah",
+    q:"Pada abad ke-19, masyarakat negara mana yang mempopulerkan tolak peluru dengan batu bulat (Stone Put)?",
+    options:["Inggris","Skotlandia","Amerika Serikat","Prancis"],
+    correct:1,
+    explain:"Pada abad ke-19, masyarakat Skotlandia mempopulerkan olahraga ini menggunakan batu bulat (Stone Put), sebelum berkembang menjadi bola besi di Inggris dan Amerika Serikat."
+  },
+  {
+    cat:"Sejarah",
+    q:"Tolak peluru resmi dipertandingkan dalam Olimpiade Modern untuk nomor putra sejak tahun berapa?",
+    options:["1896 di Athena","1908 di London","1912 di Stockholm","1948 di London"],
+    correct:0,
+    explain:"Tolak peluru resmi dipertandingkan dalam Olimpiade Modern sejak tahun 1896 di Athena untuk nomor putra."
+  },
+  {
+    cat:"Sejarah",
+    q:"Nomor tolak peluru putri baru pertama kali dipertandingkan pada Olimpiade tahun dan kota mana?",
+    options:["1936 di Berlin","1948 di London","1952 di Helsinki","1960 di Roma"],
+    correct:1,
+    explain:"Nomor tolak peluru putri baru ditandingkan pada Olimpiade 1948 di London."
+  },
+  {
+    cat:"Organisasi",
+    q:"Apa nama induk organisasi atletik internasional saat ini?",
+    options:["FINA","World Athletics","FIFA","IOC"],
+    correct:1,
+    explain:"Induk organisasi atletik internasional saat ini bernama World Athletics, sebelumnya dikenal sebagai IAAF (International Association of Athletics Federations)."
+  },
+  {
+    cat:"Organisasi",
+    q:"Induk organisasi atletik internasional (dahulu IAAF) didirikan pada tahun berapa?",
+    options:["1896","1912","1928","1948"],
+    correct:1,
+    explain:"IAAF, yang kini menjadi World Athletics, didirikan pada tahun 1912."
+  },
+  {
+    cat:"Gaya Ortodoks",
+    q:"Pada gaya Ortodoks, bagaimana posisi awalan atlet (bagi yang bertangan kanan)?",
+    options:[
+      "Berdiri menghadap penuh ke arah sektor lemparan",
+      "Berdiri menyamping dengan bahu kiri menghadap arah tolakan",
+      "Berdiri membelakangi sektor lemparan",
+      "Berdiri dengan kaki dibuka selebar bahu menghadap belakang"
+    ],
+    correct:1,
+    explain:"Pada gaya Ortodoks, atlet berdiri menyamping dari sektor lemparan dengan bahu kiri menghadap arah tolakan (bagi yang bertangan kanan)."
+  },
+  {
+    cat:"Gaya Ortodoks",
+    q:"Di mana posisi peluru diletakkan sebelum melakukan tolakan pada gaya Ortodoks?",
+    options:["Di depan dada","Di atas kepala","Pada leher di bawah rahang","Di samping pinggang"],
+    correct:2,
+    explain:"Peluru diletakkan pada leher di bawah rahang sebagai posisi awalan gaya Ortodoks."
+  },
+  {
+    cat:"Gaya Ortodoks",
+    q:"Apa yang dilakukan pada tahap 'Tolakan' gaya Ortodoks?",
+    options:[
+      "Melompat ke depan sejauh mungkin",
+      "Memutar pinggul dan dada ke depan secara mendadak lalu mendorong peluru ke arah atas-depan",
+      "Menjatuhkan peluru ke tanah lalu mengambilnya kembali",
+      "Berputar 360 derajat sebelum mendorong peluru"
+    ],
+    correct:1,
+    explain:"Pada tahap tolakan, atlet memutar pinggul dan dada ke depan secara mendadak, lalu mendorong peluru kuat-kuat ke arah atas-depan."
+  },
+  {
+    cat:"Gaya O'Brien",
+    q:"Bagaimana posisi awalan pada gaya O'Brien (meluncur)?",
+    options:[
+      "Berdiri menyamping dari sektor lemparan",
+      "Berdiri membelakangi sektor lemparan dengan beban tubuh di kaki kanan",
+      "Berdiri menghadap penuh ke sektor lemparan",
+      "Berdiri dengan kedua kaki sejajar menghadap depan"
+    ],
+    correct:1,
+    explain:"Pada gaya O'Brien, atlet berdiri membelakangi sektor lemparan dengan beban tubuh di kaki kanan dan kaki kiri dijulurkan lunak ke belakang."
+  },
+  {
+    cat:"Gaya O'Brien",
+    q:"Ciri khas pelaksanaan gaya O'Brien dibandingkan gaya lainnya adalah?",
+    options:[
+      "Melakukan putaran 360 derajat penuh",
+      "Melakukan luncuran mundur ke belakang menggunakan kaki kanan tanpa memutar tubuh",
+      "Melompat dua kali sebelum menolak",
+      "Melangkah maju biasa seperti berjalan"
+    ],
+    correct:1,
+    explain:"Pelaksanaan gaya O'Brien dilakukan dengan menurunkan badan lalu meluncur mundur ke belakang menggunakan kaki kanan tanpa memutar tubuh."
+  },
+  {
+    cat:"Gaya Spin",
+    q:"Bagaimana posisi awalan gaya Spin (memutar)?",
+    options:[
+      "Berdiri menyamping sektor lemparan",
+      "Berdiri membelakangi sektor pendaratan dengan kaki dibuka selebar bahu",
+      "Berdiri membelakangi sektor lemparan dengan beban di kaki kanan",
+      "Duduk berjongkok menghadap sektor"
+    ],
+    correct:1,
+    explain:"Pada gaya Spin, atlet berdiri membelakangi sektor pendaratan dengan kaki dibuka selebar bahu."
+  },
+  {
+    cat:"Gaya Spin",
+    q:"Gerakan apa yang menjadi ciri khas pelaksanaan gaya Spin?",
+    options:[
+      "Meluncur mundur menggunakan kaki kanan",
+      "Melakukan putaran tubuh 360 derajat bertumpu pada kaki kiri",
+      "Melompat langsung ke depan tanpa berputar",
+      "Menggeser kaki kiri ke samping papan tumpuan"
+    ],
+    correct:1,
+    explain:"Gaya Spin ditandai dengan gerakan putaran tubuh 360 derajat dengan menumpu pada kaki kiri dahulu, lalu mendarat dalam posisi siap menolak."
+  },
+  {
+    cat:"Sarana & Prasarana",
+    q:"Berapa diameter dalam lingkaran tolakan (shot put circle) yang sesuai standar?",
+    options:["1,22 m","1,21 m","2,135 m","2,50 m"],
+    correct:2,
+    explain:"Lingkaran tolakan memiliki diameter dalam standar sebesar 2,135 m."
+  },
+  {
+    cat:"Sarana & Prasarana",
+    q:"Berapa besar sudut sektor pendaratan tolak peluru diukur dari pusat lingkaran?",
+    options:["30 derajat","34,92 derajat","45 derajat","60 derajat"],
+    correct:1,
+    explain:"Sektor pendaratan memiliki sudut sebesar 34,92 derajat dari pusat lingkaran."
+  },
+  {
+    cat:"Sarana & Prasarana",
+    q:"Berapa berat peluru yang digunakan untuk kategori senior putra?",
+    options:["4 kg","5 kg","7,26 kg","3 kg"],
+    correct:2,
+    explain:"Berat peluru untuk kategori senior putra adalah 7,26 kg, sedangkan senior putri 4 kg, junior putra 5 kg, dan junior putri 3 kg."
+  },
+  {
+    cat:"Sarana & Prasarana",
+    q:"Berapa berat peluru untuk kategori junior putri?",
+    options:["3 kg","4 kg","5 kg","7,26 kg"],
+    correct:0,
+    explain:"Berat peluru kategori junior putri adalah 3 kg."
+  },
+  {
+    cat:"Peraturan",
+    q:"Bagaimana cara sah melepaskan peluru sesuai peraturan pertandingan?",
+    options:[
+      "Dilempar sejauh mungkin dengan dua tangan",
+      "Dipegang rapat di leher/dagu sejak awal dan didorong dengan satu tangan",
+      "Diayun dari bawah lalu dilepas",
+      "Boleh dilempar asal dari dalam lingkaran"
+    ],
+    correct:1,
+    explain:"Peluru harus dipegang rapat di leher/dagu sejak awal gerakan dan didorong menggunakan satu tangan, bukan dilempar."
+  },
+  {
+    cat:"Peraturan",
+    q:"Berapa lama waktu yang diberikan kepada atlet untuk menyelesaikan tolakan setelah namanya dipanggil?",
+    options:["30 detik","45 detik","60 detik","90 detik"],
+    correct:2,
+    explain:"Atlet diberikan waktu 60 detik untuk menyelesaikan tolakan setelah dipanggil."
+  },
+  {
+    cat:"Peraturan",
+    q:"Manakah yang termasuk pelanggaran (foul) dalam tolak peluru?",
+    options:[
+      "Peluru mendarat di dalam sektor pendaratan",
+      "Keluar dari lingkaran melalui separuh lingkaran bagian belakang",
+      "Keluar dari lingkaran sebelum peluru mendarat di tanah",
+      "Peluru didorong dengan satu tangan"
+    ],
+    correct:2,
+    explain:"Salah satu bentuk foul adalah keluar dari lingkaran sebelum peluru mendarat di tanah. Keluar lingkaran yang sah hanya boleh melalui separuh lingkaran bagian belakang, bukan bagian depan."
+  },
+  {
+    cat:"Perangkat Pertandingan",
+    q:"Siapa yang bertanggung jawab mengawasi seluruh jalannya lomba tolak peluru?",
+    options:["Judge 1 & 2 (Wasit Lingkaran)","Judge 3 & 4 (Wasit Sektor)","Chief Judge (Wasit Utama)","Starter"],
+    correct:2,
+    explain:"Chief Judge (Wasit Utama) bertanggung jawab mengawasi seluruh jalannya lomba."
+  },
+  {
+    cat:"Perangkat Pertandingan",
+    q:"Apa tugas Judge 3 & 4 (Wasit Sektor) dalam pertandingan tolak peluru?",
+    options:[
+      "Mengawasi gerakan atlet sah atau terjadi foul pada lingkaran/papan tumpuan",
+      "Menandai titik pendaratan peluru pertama dan memastikan jatuh di dalam sektor",
+      "Mengawasi seluruh jalannya lomba",
+      "Memberikan aba-aba mulai bertanding"
+    ],
+    correct:1,
+    explain:"Judge 3 & 4 (Wasit Sektor) bertugas menandai titik pendaratan peluru pertama di tanah dan memastikan peluru jatuh di dalam sektor."
+  }
+];
+
+// ====== KONFIGURASI DATABASE (Google Apps Script Web App) ======
+// Ganti URL di bawah ini dengan URL Web App hasil deploy Code.gs (lihat panduan setup)
+const API_URL = "https://script.google.com/macros/s/AKfycbxDpunAFb5R1MUhLHJj19FWvc88xoyTO50uy5XrT55mW0mXpL4_PvmLKmxO6ft_X1_E/exec";
+
+let current = 0;
+let score = 0;
+let answers = []; // {chosen, correct, isCorrect}
+let studentName = '';
+let studentClass = '';
+
+const screenLogin = document.getElementById('screen-login');
+const screenStart = document.getElementById('screen-start');
+const screenQuiz = document.getElementById('screen-quiz');
+const screenResult = document.getElementById('screen-result');
+
+document.getElementById('stat-total').textContent = QUESTIONS.length;
+
+// ====== ROBOT LOGIN INTERAKSI ======
+const rBubble = document.getElementById('r-bubble');
+const rFace   = document.getElementById('r-face');
+const rPupilL = document.getElementById('r-pupilL');
+const rPupilR = document.getElementById('r-pupilR');
+const rMouth  = document.getElementById('r-mouth');
+const rNamaIn = document.getElementById('input-nama');
+const rKelasIn= document.getElementById('input-kelas');
+const R_MAX_OFFSET = 4;
+let rTalkTimer = null;
+let rFocusMode = 'idle'; // idle | nama | kelas
+
+function setRobotBubble(text){
+  rBubble.textContent = text;
+  rMouth.classList.add('talk');
+  clearTimeout(rTalkTimer);
+  rTalkTimer = setTimeout(()=> rMouth.classList.remove('talk'), 700);
+}
+
+function moveRobotPupils(clientX, clientY){
+  [rPupilL, rPupilR].forEach(p=>{
+    const eye = p.parentElement;
+    const r = eye.getBoundingClientRect();
+    const cx = r.left + r.width/2;
+    const cy = r.top + r.height/2;
+    const angle = Math.atan2(clientY - cy, clientX - cx);
+    const dx = Math.cos(angle) * R_MAX_OFFSET;
+    const dy = Math.sin(angle) * R_MAX_OFFSET;
+    p.style.transform = `translate(${dx}px, ${dy}px)`;
+  });
+}
+
+document.addEventListener('mousemove', (e)=>{
+  if(rFocusMode === 'idle') moveRobotPupils(e.clientX, e.clientY);
+});
+document.addEventListener('touchstart', (e)=>{
+  if(rFocusMode === 'idle' && e.touches[0]) moveRobotPupils(e.touches[0].clientX, e.touches[0].clientY);
+}, {passive:true});
+
+function rLookAtNamaField(){
+  const r = rNamaIn.getBoundingClientRect();
+  moveRobotPupils(r.left + r.width * Math.min(rNamaIn.selectionStart||1, 30)/30, r.top + r.height/2);
+}
+
+if(rNamaIn){
+  rNamaIn.addEventListener('focus', ()=>{
+    rFocusMode = 'nama';
+    rLookAtNamaField();
+    setRobotBubble('Siapa namamu? Tulis di sini ya! ✏️');
+  });
+  rNamaIn.addEventListener('input', ()=>{
+    rLookAtNamaField();
+    setRobotBubble(rNamaIn.value.trim().length ? `Halo, ${rNamaIn.value.trim()}! 👋` : 'Siapa namamu? Tulis di sini ya! ✏️');
+  });
+  rNamaIn.addEventListener('blur', ()=>{ if(rFocusMode==='nama') rFocusMode = 'idle'; });
+}
+
+if(rKelasIn){
+  rKelasIn.addEventListener('focus', ()=>{
+    rFocusMode = 'kelas';
+    setRobotBubble('Sekarang pilih kelasmu ya! 🏫');
+  });
+  rKelasIn.addEventListener('change', ()=>{
+    setRobotBubble(rNamaIn.value.trim() ? `Siap, ${rNamaIn.value.trim()} dari ${rKelasIn.value}! 🎉` : 'Sekarang pilih kelasmu ya! 🏫');
+  });
+  rKelasIn.addEventListener('blur', ()=>{ if(rFocusMode==='kelas') rFocusMode = 'idle'; });
+}
+
+function loginStudent(){
+  const nama = document.getElementById('input-nama').value.trim();
+  const kelas = document.getElementById('input-kelas').value;
+  const errEl = document.getElementById('login-error');
+
+  if(!nama || !kelas){
+    errEl.style.display = 'block';
+    setRobotBubble('Eits, nama dan kelas wajib diisi dulu! ⚠️');
+    return;
+  }
+  errEl.style.display = 'none';
+
+  studentName = nama;
+  studentClass = kelas;
+  document.getElementById('student-display').textContent = studentName + ' · ' + studentClass;
+
+  setRobotBubble(`Selamat datang, ${studentName}! 🎉`);
+
+  setTimeout(()=>{
+    screenLogin.style.display = 'none';
+    screenStart.style.display = 'block';
+  }, 650);
+}
+
+function startQuiz(){
+  current = 0; score = 0; answers = [];
+  screenStart.style.display = 'none';
+  screenResult.style.display = 'none';
+  screenQuiz.style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const item = QUESTIONS[current];
+  document.getElementById('q-category').textContent = item.cat;
+  document.getElementById('q-text').textContent = item.q;
+  document.getElementById('progress-text').textContent = (current+1) + ' / ' + QUESTIONS.length;
+  document.getElementById('progress-fill').style.width = ((current)/QUESTIONS.length*100) + '%';
+  document.getElementById('live-score').textContent = score;
+
+  const optWrap = document.getElementById('q-options');
+  optWrap.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  item.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = '<span class="marker">'+letters[i]+'</span><span>'+opt+'</span>';
+    btn.onclick = () => selectAnswer(i);
+    optWrap.appendChild(btn);
+  });
+
+  document.getElementById('q-explain').style.display = 'none';
+  document.getElementById('btn-next').style.display = 'none';
+}
+
+function selectAnswer(i){
+  const item = QUESTIONS[current];
+  const opts = document.querySelectorAll('#q-options .option');
+  opts.forEach((b, idx) => {
+    b.disabled = true;
+    if(idx === item.correct) b.classList.add('correct');
+    if(idx === i && i !== item.correct) b.classList.add('wrong');
+  });
+
+  const isCorrect = (i === item.correct);
+  if(isCorrect) score++;
+  answers.push({chosen:i, correct:item.correct, isCorrect});
+
+  document.getElementById('live-score').textContent = score;
+  document.getElementById('progress-fill').style.width = ((current+1)/QUESTIONS.length*100) + '%';
+
+  const exp = document.getElementById('q-explain');
+  exp.innerHTML = '<b>' + (isCorrect ? 'Benar! ' : 'Kurang tepat. ') + '</b>' + item.explain;
+  exp.style.display = 'block';
+
+  document.getElementById('btn-next').style.display = 'inline-block';
+  document.getElementById('btn-next').textContent = (current === QUESTIONS.length - 1) ? 'Lihat Hasil' : 'Lanjut →';
+}
+
+function nextQuestion(){
+  current++;
+  if(current >= QUESTIONS.length){
+    showResult();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showResult(){
+  screenQuiz.style.display = 'none';
+  screenResult.style.display = 'block';
+
+  const pct = Math.round((score/QUESTIONS.length)*100);
+  document.getElementById('result-pct').textContent = pct + '%';
+  document.getElementById('result-frac').textContent = score + ' / ' + QUESTIONS.length + ' BENAR';
+
+  const circumference = 465;
+  const offset = circumference - (circumference * pct/100);
+  document.getElementById('ring-fill').style.strokeDashoffset = offset;
+
+  let title, msg;
+  if(pct >= 90){ title = 'Luar Biasa!'; msg = 'Pemahamanmu tentang tolak peluru sudah sangat matang.'; }
+  else if(pct >= 70){ title = 'Bagus!'; msg = 'Sedikit lagi menuju penguasaan penuh materi ini.'; }
+  else if(pct >= 50){ title = 'Lumayan'; msg = 'Coba tonton lagi video materinya, lalu ulangi kuis ini.'; }
+  else { title = 'Ayo Belajar Lagi'; msg = 'Tonton kembali video materi di atas sebelum mencoba lagi.'; }
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-msg').textContent = msg;
+
+  saveResultToSheet(pct);
+
+  const reviewList = document.getElementById('review-list');
+  reviewList.innerHTML = '';
+  QUESTIONS.forEach((item, idx) => {
+    const a = answers[idx];
+    const div = document.createElement('div');
+    div.className = 'review-item';
+    let html = '<div class="rq">'+(idx+1)+'. '+item.q+'</div>';
+    if(a.isCorrect){
+      html += '<div class="ra correct">✓ Jawabanmu benar: '+item.options[item.correct]+'</div>';
+    } else {
+      html += '<div class="ra you-wrong">✗ Jawabanmu: '+item.options[a.chosen]+'</div>';
+      html += '<div class="ra correct">✓ Jawaban benar: '+item.options[item.correct]+'</div>';
+    }
+    reviewList.appendChild(div);
+  });
+
+  document.getElementById('review-wrap').style.display = 'none';
+}
+
+function saveResultToSheet(pct){
+  const statusEl = document.getElementById('submit-status');
+
+  if(!API_URL || API_URL.indexOf('GANTI_DENGAN') === 0){
+    console.warn('API_URL belum diatur — hasil kuis tidak dikirim ke spreadsheet.');
+    if(statusEl){
+      statusEl.className = 'error';
+      statusEl.textContent = 'Nilai belum tersimpan (API belum diatur).';
+    }
+    return;
+  }
+
+  if(statusEl){
+    statusEl.className = 'sending';
+    statusEl.textContent = 'Menyimpan nilai...';
+  }
+
+  const payload = {
+    nama: studentName,
+    kelas: studentClass,
+    skor: score,
+    total: QUESTIONS.length,
+    persentase: pct,
+    waktu: new Date().toISOString()
+  };
+
+  fetch(API_URL, {
+    method: 'POST',
+    mode: 'no-cors', // Apps Script Web App tidak mengirim header CORS ke respons
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  }).then(() => {
+    // mode 'no-cors' membuat respons "opaque" (status selalu tampak sukses),
+    // jadi resolve di sini berarti request berhasil terkirim ke server.
+    if(statusEl){
+      statusEl.className = 'ok';
+      statusEl.textContent = 'Nilai otomatis tersimpan ke rekap guru.';
+    }
+  }).catch(err => {
+    console.error('Gagal mengirim hasil ke spreadsheet:', err);
+    if(statusEl){
+      statusEl.className = 'error';
+      statusEl.textContent = 'Gagal menyimpan nilai. Periksa koneksi internet.';
+    }
+  });
+}
+
+function toggleReview(){
+  const wrap = document.getElementById('review-wrap');
+  wrap.style.display = (wrap.style.display === 'none' || !wrap.style.display) ? 'block' : 'none';
+}
+
+function restartQuiz(){
+  startQuiz();
+}
+
+// tampilkan durasi video setelah metadata dimuat
+const vid = document.getElementById('materi-video');
+vid.addEventListener('loadedmetadata', () => {
+  const total = Math.round(vid.duration);
+  const m = Math.floor(total/60);
+  const s = total % 60;
+  document.getElementById('video-duration').textContent = m + ':' + String(s).padStart(2,'0') + ' menit';
+});
+</script>
+</body>
+</html>
